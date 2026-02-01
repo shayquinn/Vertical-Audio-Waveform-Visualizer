@@ -74,6 +74,54 @@ The visualizer creates a 120px wide vertical bar on the right edge of your brows
 4. When you pause or stop the audio, the visualizer disappears
 5. Works across all tabs - each tab gets its own visualizer
 
+## 🎛️ Managing the Script
+
+### Disable/Enable the Script
+
+**In Greasemonkey (Firefox):**
+1. Click the Greasemonkey icon in your toolbar
+2. Find "Vertical Audio Waveform Visualizer" in the list
+3. Click the toggle switch next to it to disable/enable
+4. Refresh any open tabs for changes to take effect
+
+**In Tampermonkey:**
+1. Click the Tampermonkey icon in your toolbar
+2. Find "Vertical Audio Waveform Visualizer" in the dashboard
+3. Toggle the switch to enable/disable
+4. Or click the icon and toggle directly from the popup menu
+
+### Disable for Specific Sites Only
+
+**In Greasemonkey:**
+1. Navigate to the site where you want to disable it
+2. Click the Greasemonkey icon
+3. Click the gear icon next to "Vertical Audio Waveform Visualizer"
+4. Select "Add exclude" and confirm
+
+**In Tampermonkey:**
+1. Click the Tampermonkey icon → Dashboard
+2. Click "Vertical Audio Waveform Visualizer"
+3. Go to the "Settings" tab
+4. Add URLs to "Excludes" (e.g., `https://banking-site.com/*`)
+
+### Uninstall the Script
+
+**In Greasemonkey:**
+1. Click the Greasemonkey icon in your toolbar
+2. Select "Manage user scripts"
+3. Find "Vertical Audio Waveform Visualizer"
+4. Click the trash/delete icon
+5. Confirm deletion
+
+**In Tampermonkey:**
+1. Click the Tampermonkey icon → Dashboard
+2. Find "Vertical Audio Waveform Visualizer" in the list
+3. Click the trash icon on the right side
+4. Confirm deletion
+5. The script is completely removed
+
+**Note:** Uninstalling removes all traces of the script. You can always reinstall it later using the installation instructions above.
+
 ### Supported Sites
 
 - ✅ YouTube
