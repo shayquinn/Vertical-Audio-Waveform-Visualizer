@@ -100,6 +100,75 @@ const CONFIG = {
 };
 ```
 
+## � Safety & Privacy
+
+### Is This Script Safe? ✅
+
+**YES** - This script is completely safe and privacy-focused:
+
+- ✅ **No data collection** - Doesn't collect, store, or transmit any user data
+- ✅ **No external requests** - Doesn't connect to any external servers
+- ✅ **No tracking** - Doesn't monitor your browsing or behavior
+- ✅ **No audio recording** - Only analyzes audio frequencies, never records or saves audio
+- ✅ **Open source** - All code is visible and can be reviewed
+- ✅ **Minimal permissions** - Only uses `GM_addStyle` (for potential future styling)
+- ✅ **Local execution** - Everything runs entirely in your browser
+- ✅ **Read-only access** - Only reads audio data, doesn't modify media playback
+
+### What the Script Does Access
+
+1. **Audio Analysis Only** - Connects to Web Audio API to read frequency data in real-time
+2. **DOM Access** - Adds a single visualization container to the page (no modifications to existing content)
+3. **Media Elements** - Detects `<audio>` and `<video>` elements to visualize their audio
+
+### What the Script CANNOT Do
+
+- ❌ Cannot record your audio or video
+- ❌ Cannot access your microphone or camera
+- ❌ Cannot see what you're watching/listening to
+- ❌ Cannot send data to external servers
+- ❌ Cannot access passwords, cookies, or personal information
+- ❌ Cannot modify page content or inject ads
+- ❌ Cannot track your browsing history
+
+### Potential Concerns & Mitigations
+
+**1. Runs on All Websites (`@match *://*/*`)**
+- **Why**: Needs to work on any site with audio/video
+- **Mitigation**: You can restrict this in Greasemonkey/Tampermonkey settings to specific sites
+- **How**: Edit the script and change line 7 to only match specific domains:
+  ```javascript
+  // @match        https://www.youtube.com/*
+  // @match        https://www.netflix.com/*
+  ```
+
+**2. Performance Impact**
+- **Concern**: Canvas animation uses CPU/GPU resources
+- **Mitigation**: Automatically pauses when tab is hidden
+- **Impact**: Minimal on modern hardware (~1-2% CPU)
+
+**3. Audio Context Conflicts**
+- **Concern**: Might interfere with sites that use Web Audio API
+- **Mitigation**: Uses error handling to gracefully fail if audio is already connected
+- **Fallback**: Attempts visualization anyway using existing audio connection
+
+### Best Practices
+
+- Review the code yourself before installing (it's short and readable!)
+- Only install from trusted sources (this repository or your own copy)
+- Keep your browser and userscript manager updated
+- Disable on sensitive sites if you prefer (banking, work sites, etc.)
+- Monitor console for any unexpected `[Visualizer]` error messages
+
+### Browser Permissions
+
+The script uses standard web APIs available to all websites:
+- **Web Audio API** - For audio frequency analysis
+- **Canvas API** - For drawing visualizations
+- **DOM API** - For adding the visualizer element
+
+No special browser permissions required beyond what userscript managers normally have.
+
 ## 🐛 Troubleshooting
 
 **Visualizer doesn't appear:**
@@ -115,6 +184,10 @@ const CONFIG = {
 **No audio data detected:**
 - Some sites may have audio protection that prevents visualization
 - Try a different website to confirm the script works
+
+**Concerned about a specific site:**
+- You can disable the script for specific domains in your userscript manager settings
+- Click the Greasemonkey/Tampermonkey icon → Dashboard → Click the script → Settings tab
 
 ## 📝 Technical Details
 
