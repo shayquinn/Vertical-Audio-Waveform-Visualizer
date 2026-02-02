@@ -13,7 +13,8 @@ A beautiful, interactive, real-time audio visualization userscript that displays
 - 🔄 **Center-Mirrored Design** - Bars radiate outward from the center in both directions
 - 🎭 **Dynamic Glow Effects** - Glow effects that change color along with the gradient
 - 📍 **Peak Indicators** - White markers show peak audio levels that decay smoothly
-- 🔇 **Auto-Detection** - Automatically detects and visualizes any audio/video on the page
+- � **Quick Reset** - Double-click or use reset button to restore default settings
+- �🔇 **Auto-Detection** - Automatically detects and visualizes any audio/video on the page
 - 🖱️ **Intuitive Controls** - Grab cursor shows the visualizer is interactive
 - 📱 **Responsive** - Adapts to window resizing and high DPI displays
 - ⚡ **Performance Optimized** - Pauses when tab is hidden to save resources
@@ -99,9 +100,18 @@ The visualizer is fully interactive! Hover over it and you'll see a "grab" curso
 - Find the perfect balance between detail and smoothness
 - Great for different types of music (fewer bars for bass-heavy, more for detailed treble)
 
-**💡 Tips:**
+**� Reset to Defaults:**
+- **Double-click** anywhere on the visualizer to instantly reset colors and bar count
+- Or click the **↺ reset button** in the top-right corner of the visualizer
+- Resets hue rotation to 0° (original rainbow gradient)
+- Resets bar count to 40 (default density)
+- Quick way to start fresh without refreshing the page
+
+**�💡 Tips:**
 - You can drag diagonally to change both color and density simultaneously
 - Your settings persist while the visualizer is active
+- Double-click anytime to reset to default colors and bar count
+- The reset button (↺) in the top-right corner provides a click alternative to double-click
 - Settings reset when you refresh the page or start new media
 
 ## 🎛️ Managing the Script
@@ -303,7 +313,10 @@ This userscript is provided as-is for personal use. Feel free to modify and shar
 - 📊 **Adjustable Bar Density** - Drag horizontally to change bar count (10-80)
 - 🎨 **Dynamic Hue Rotation** - All colors and glows rotate together
 - 📍 **Peak Indicators** - White markers show and hold peak levels
-- 🖱️ **Enhanced Interaction** - Grab/grabbing cursor, prevents page interference
+- � **Reset Functionality** - Double-click or reset button to restore defaults
+- 📱 **Touch Support** - Mobile touch gestures for drag controls
+- 🎨 **Color Caching** - Improved performance with cached color calculations
+- �🖱️ **Enhanced Interaction** - Grab/grabbing cursor, prevents page interference
 - 🔧 **Multiple Audio Source Handling** - Better switching between different media
 - 🧹 **Memory Leak Prevention** - Proper cleanup of audio resources
 - ⚡ **Performance Enhancements** - Throttled resize events, visibility detection

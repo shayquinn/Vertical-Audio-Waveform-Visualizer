@@ -23,7 +23,10 @@
         barColor: '#00ff88',
         animationSpeed: 0.15,
         peakHold: true, // Keep peak values briefly
-        peakDecay: 0.97
+        peakDecay: 0.97,
+        dragHueSensitivity: 0.5,
+        dragBarSensitivity: 3,
+        showDragInfo: true
     };
 
     // Create visualization container
@@ -79,6 +82,16 @@
     let dynamicNumBars = CONFIG.numBars; // Dynamic bar count
     const MIN_BARS = 10;
     const MAX_BARS = 80;
+    
+    // Cache rotated colors for performance
+    let cachedColors = {
+        '#ff0080': null,
+        '#8000ff': null,
+        '#0080ff': null,
+        '#00ff80': null,
+        barColor: null
+    };
+    let lastHueRotation = null;
 
     // Resize canvas to match container
     function resizeCanvas() {
@@ -234,6 +247,16 @@
             stopVisualization();
             visualizerContainer.style.display = 'none';
             cleanupVisualizer();
+        } else if (activeMediaElement && activeMediaElement.paused) {
+            // Current media paused but others might be playing
+            // Keep visualizer alive if other media is playing
+            const otherPlaying = Array.from(document.querySelectorAll('audio, video'))
+                .some(media => media !== activeMediaElement && !media.paused && !media.muted);
+            
+            if (!otherPlaying) {
+                visualizerContainer.style.display = 'none';
+                stopVisualization();
+            }
         }
     }
     
@@ -307,6 +330,60 @@
         // Don't clear canvas when stopping, let it show last frame
     }
     
+    // Create visual feedback for dragging
+    function createDragIndicator() {
+        const indicator = document.createElement('div');
+        indicator.id = 'dragIndicator';
+        Object.assign(indicator.style, {
+            position: 'fixed',
+            top: '50%',
+            right: `${CONFIG.barWidth}px`,
+            transform: 'translateY(-50%)',
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            color: 'white',
+            padding: '8px 12px',
+            borderRadius: '4px',
+            fontSize: '12px',
+            pointerEvents: 'none',
+            display: 'none',
+            zIndex: '10001',
+            whiteSpace: 'nowrap'
+        });
+        document.body.appendChild(indicator);
+        return indicator;
+    }
+    
+    // Add reset button to visualizer
+    function addResetButton() {
+        const resetBtn = document.createElement('div');
+        resetBtn.textContent = '↺';
+        resetBtn.title = 'Reset to defaults (or double-click bar)';
+        Object.assign(resetBtn.style, {
+            position: 'absolute',
+            top: '10px',
+            right: '10px',
+            color: 'white',
+            cursor: 'pointer',
+            fontSize: '16px',
+            opacity: '0.6',
+            zIndex: '1',
+            transition: 'opacity 0.2s'
+        });
+        resetBtn.addEventListener('mouseenter', () => {
+            resetBtn.style.opacity = '1';
+        });
+        resetBtn.addEventListener('mouseleave', () => {
+            resetBtn.style.opacity = '0.6';
+        });
+        resetBtn.addEventListener('click', (e) => {
+            hueRotation = 0;
+            dynamicNumBars = CONFIG.numBars;
+            console.log('[Visualizer] Reset to defaults');
+            e.stopPropagation();
+        });
+        visualizerContainer.appendChild(resetBtn);
+    }
+    
     // Helper function to rotate hue of a hex color
     function rotateHue(hexColor, degrees) {
         // Convert hex to RGB
@@ -366,6 +443,24 @@
         
         return '#' + toHex(r2) + toHex(g2) + toHex(b2);
     }
+    
+    // Get rotated color with caching for performance
+    function getRotatedColor(hexColor) {
+        if (hueRotation === lastHueRotation && cachedColors[hexColor]) {
+            return cachedColors[hexColor];
+        }
+        
+        if (hueRotation !== lastHueRotation) {
+            // Clear cache when hue changes
+            Object.keys(cachedColors).forEach(key => {
+                cachedColors[key] = null;
+            });
+            lastHueRotation = hueRotation;
+        }
+        
+        cachedColors[hexColor] = rotateHue(hexColor, hueRotation);
+        return cachedColors[hexColor];
+    }
 
     // Draw gradient bar visualization (mirrored from center)
     function drawGradientBars() {
@@ -407,16 +502,16 @@
         
         // Create gradient for bars (center to edges) with hue rotation
         const gradientTop = ctx.createLinearGradient(0, 0, 0, centerY);
-        gradientTop.addColorStop(0, rotateHue('#ff0080', hueRotation));
-        gradientTop.addColorStop(0.33, rotateHue('#8000ff', hueRotation));
-        gradientTop.addColorStop(0.66, rotateHue('#0080ff', hueRotation));
-        gradientTop.addColorStop(1, rotateHue('#00ff80', hueRotation));
+        gradientTop.addColorStop(0, getRotatedColor('#ff0080'));
+        gradientTop.addColorStop(0.33, getRotatedColor('#8000ff'));
+        gradientTop.addColorStop(0.66, getRotatedColor('#0080ff'));
+        gradientTop.addColorStop(1, getRotatedColor('#00ff80'));
         
         const gradientBottom = ctx.createLinearGradient(0, centerY, 0, canvasHeight);
-        gradientBottom.addColorStop(0, rotateHue('#00ff80', hueRotation));
-        gradientBottom.addColorStop(0.33, rotateHue('#0080ff', hueRotation));
-        gradientBottom.addColorStop(0.66, rotateHue('#8000ff', hueRotation));
-        gradientBottom.addColorStop(1, rotateHue('#ff0080', hueRotation));
+        gradientBottom.addColorStop(0, getRotatedColor('#00ff80'));
+        gradientBottom.addColorStop(0.33, getRotatedColor('#0080ff'));
+        gradientBottom.addColorStop(0.66, getRotatedColor('#8000ff'));
+        gradientBottom.addColorStop(1, getRotatedColor('#ff0080'));
         
         // Draw center bar first (spans across centerline)
         const centerDataIndex = 0;
@@ -432,13 +527,13 @@
         
         // Draw center bar spanning the centerline with proper spacing
         const centerBarY = centerY - barHeight / 2 + CONFIG.barSpacing;
-        ctx.fillStyle = rotateHue('#00ff80', hueRotation); // Use the center gradient color with rotation
+        ctx.fillStyle = getRotatedColor('#00ff80'); // Use the center gradient color with rotation
         ctx.fillRect(5, centerBarY, centerBarWidth, barHeight - CONFIG.barSpacing * 2);
         
         // Add glow effect for center
         if (centerBarWidth > 20) {
             ctx.shadowBlur = 10;
-            ctx.shadowColor = rotateHue(CONFIG.barColor, hueRotation);
+            ctx.shadowColor = getRotatedColor(CONFIG.barColor);
             ctx.fillRect(5, centerBarY, centerBarWidth, barHeight - CONFIG.barSpacing * 2);
             ctx.shadowBlur = 0;
         }
@@ -471,7 +566,7 @@
             // Add glow effect for top
             if (barWidth > 20) {
                 ctx.shadowBlur = 10;
-                ctx.shadowColor = rotateHue(CONFIG.barColor, hueRotation);
+                ctx.shadowColor = getRotatedColor(CONFIG.barColor);
                 ctx.fillRect(5, yTop, barWidth, barHeight - CONFIG.barSpacing * 2);
                 ctx.shadowBlur = 0;
             }
@@ -484,7 +579,7 @@
             // Add glow effect for bottom
             if (barWidth > 20) {
                 ctx.shadowBlur = 10;
-                ctx.shadowColor = rotateHue(CONFIG.barColor, hueRotation);
+                ctx.shadowColor = getRotatedColor(CONFIG.barColor);
                 ctx.fillRect(5, yBottom, barWidth, barHeight - CONFIG.barSpacing * 2);
                 ctx.shadowBlur = 0;
             }
@@ -528,6 +623,12 @@
         // Add container to page
         document.body.appendChild(visualizerContainer);
         console.log('[Visualizer] Container added to page');
+        
+        // Create drag indicator for visual feedback
+        const dragIndicator = createDragIndicator();
+        
+        // Add reset button
+        addResetButton();
         
         // Initial monitoring
         monitorMediaPlayback();
@@ -595,6 +696,25 @@
             e.preventDefault(); // Prevent text selection and other default behaviors
         });
         
+        // Add touch support for mobile devices
+        visualizerContainer.addEventListener('touchstart', (e) => {
+            if (e.touches.length !== 1) return;
+            
+            isDragging = true;
+            dragStartY = e.touches[0].clientY;
+            dragStartX = e.touches[0].clientX;
+            visualizerContainer.style.cursor = 'grabbing';
+            e.preventDefault();
+        }, { passive: false });
+        
+        // Double-click to reset to defaults
+        visualizerContainer.addEventListener('dblclick', (e) => {
+            hueRotation = 0;
+            dynamicNumBars = CONFIG.numBars;
+            console.log('[Visualizer] Reset to defaults');
+            e.stopPropagation();
+        });
+        
         window.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
             
@@ -603,13 +723,14 @@
             
             // Vertical drag: rotate hue
             if (Math.abs(deltaY) > 0) {
-                hueRotation = (hueRotation + deltaY * 0.5) % 360;
+                hueRotation = (hueRotation + deltaY * CONFIG.dragHueSensitivity) % 360;
+                if (hueRotation < 0) hueRotation += 360;
                 dragStartY = e.clientY;
             }
             
             // Horizontal drag: adjust bar count
             if (Math.abs(deltaX) > 2) {
-                const barChange = Math.floor(deltaX / 3); // Adjust sensitivity
+                const barChange = Math.sign(deltaX); // Just +/- 1 for smoother adjustment
                 const newBarCount = Math.max(MIN_BARS, Math.min(MAX_BARS, dynamicNumBars + barChange));
                 
                 if (newBarCount !== dynamicNumBars) {
@@ -620,13 +741,61 @@
                 dragStartX = e.clientX;
             }
             
+            // Show drag info
+            if (CONFIG.showDragInfo && dragIndicator) {
+                dragIndicator.textContent = `Hue: ${Math.round(hueRotation)}° | Bars: ${dynamicNumBars}`;
+                dragIndicator.style.display = 'block';
+                dragIndicator.style.right = `${CONFIG.barWidth + 10}px`;
+            }
+            
             e.preventDefault(); // Prevent page scrolling or other interactions
         });
+        
+        // Touch move handler with same drag logic
+        window.addEventListener('touchmove', (e) => {
+            if (!isDragging || e.touches.length !== 1) return;
+            
+            const touch = e.touches[0];
+            const deltaY = dragStartY - touch.clientY;
+            const deltaX = touch.clientX - dragStartX;
+            
+            // Vertical drag: rotate hue
+            if (Math.abs(deltaY) > 0) {
+                hueRotation = (hueRotation + deltaY * CONFIG.dragHueSensitivity) % 360;
+                if (hueRotation < 0) hueRotation += 360;
+                dragStartY = touch.clientY;
+            }
+            
+            // Horizontal drag: adjust bar count
+            if (Math.abs(deltaX) > 2) {
+                const barChange = Math.sign(deltaX);
+                const newBarCount = Math.max(MIN_BARS, Math.min(MAX_BARS, dynamicNumBars + barChange));
+                
+                if (newBarCount !== dynamicNumBars) {
+                    dynamicNumBars = newBarCount;
+                    console.log('[Visualizer] Bar count adjusted to:', dynamicNumBars);
+                }
+                
+                dragStartX = touch.clientX;
+            }
+            
+            // Show drag info
+            if (CONFIG.showDragInfo && dragIndicator) {
+                dragIndicator.textContent = `Hue: ${Math.round(hueRotation)}° | Bars: ${dynamicNumBars}`;
+                dragIndicator.style.display = 'block';
+                dragIndicator.style.right = `${CONFIG.barWidth + 10}px`;
+            }
+            
+            e.preventDefault();
+        }, { passive: false });
         
         window.addEventListener('mouseup', () => {
             if (isDragging) {
                 isDragging = false;
                 visualizerContainer.style.cursor = 'grab';
+                if (dragIndicator) {
+                    dragIndicator.style.display = 'none';
+                }
             }
         });
         
@@ -635,6 +804,20 @@
             if (isDragging) {
                 isDragging = false;
                 visualizerContainer.style.cursor = 'grab';
+                if (dragIndicator) {
+                    dragIndicator.style.display = 'none';
+                }
+            }
+        });
+        
+        // Touch end handler
+        window.addEventListener('touchend', () => {
+            if (isDragging) {
+                isDragging = false;
+                visualizerContainer.style.cursor = 'grab';
+                if (dragIndicator) {
+                    dragIndicator.style.display = 'none';
+                }
             }
         });
     }
