@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vertical Audio Waveform Visualizer
 // @namespace    http://tampermonkey.net/
-// @version      1.2
+// @version      1.3
 // @description  Shows a vertical audio waveform visualization bar when audio is playing
 // @author       You
 // @match        *://*/*
@@ -78,10 +78,11 @@
     let isDragging = false;
     let dragStartY = 0;
     let dragStartX = 0;
-    let hueRotation = 0; // Degrees to rotate the hue
-    let dynamicNumBars = CONFIG.numBars; // Dynamic bar count
+    let hueRotation = parseFloat(localStorage.getItem('waveformHueRotation')) || 0; // Degrees to rotate the hue
+    let dynamicNumBars = parseInt(localStorage.getItem('waveformBarCount')) || CONFIG.numBars; // Dynamic bar count
     const MIN_BARS = 10;
     const MAX_BARS = 80;
+    let settingsChanged = false; // Track if settings need to be saved
     
     // Cache rotated colors for performance
     let cachedColors = {
@@ -378,6 +379,7 @@
         resetBtn.addEventListener('click', (e) => {
             hueRotation = 0;
             dynamicNumBars = CONFIG.numBars;
+            saveSettings(); // Use helper function
             console.log('[Visualizer] Reset to defaults');
             e.stopPropagation();
         });
@@ -442,6 +444,17 @@
         };
         
         return '#' + toHex(r2) + toHex(g2) + toHex(b2);
+    }
+    
+    // Helper function to save settings (debounced)
+    function saveSettings() {
+        try {
+            localStorage.setItem('waveformHueRotation', hueRotation);
+            localStorage.setItem('waveformBarCount', dynamicNumBars);
+            settingsChanged = false;
+        } catch (e) {
+            console.error('[Visualizer] Error saving settings:', e);
+        }
     }
     
     // Get rotated color with caching for performance
@@ -711,6 +724,7 @@
         visualizerContainer.addEventListener('dblclick', (e) => {
             hueRotation = 0;
             dynamicNumBars = CONFIG.numBars;
+            saveSettings(); // Use helper function
             console.log('[Visualizer] Reset to defaults');
             e.stopPropagation();
         });
@@ -725,6 +739,7 @@
             if (Math.abs(deltaY) > 0) {
                 hueRotation = (hueRotation + deltaY * CONFIG.dragHueSensitivity) % 360;
                 if (hueRotation < 0) hueRotation += 360;
+                settingsChanged = true; // Mark for saving later
                 dragStartY = e.clientY;
             }
             
@@ -735,6 +750,7 @@
                 
                 if (newBarCount !== dynamicNumBars) {
                     dynamicNumBars = newBarCount;
+                    settingsChanged = true; // Mark for saving later
                     console.log('[Visualizer] Bar count adjusted to:', dynamicNumBars);
                 }
                 
@@ -763,6 +779,7 @@
             if (Math.abs(deltaY) > 0) {
                 hueRotation = (hueRotation + deltaY * CONFIG.dragHueSensitivity) % 360;
                 if (hueRotation < 0) hueRotation += 360;
+                settingsChanged = true; // Mark for saving later
                 dragStartY = touch.clientY;
             }
             
@@ -773,6 +790,7 @@
                 
                 if (newBarCount !== dynamicNumBars) {
                     dynamicNumBars = newBarCount;
+                    settingsChanged = true; // Mark for saving later
                     console.log('[Visualizer] Bar count adjusted to:', dynamicNumBars);
                 }
                 
@@ -796,6 +814,10 @@
                 if (dragIndicator) {
                     dragIndicator.style.display = 'none';
                 }
+                // Save settings when drag ends
+                if (settingsChanged) {
+                    saveSettings();
+                }
             }
         });
         
@@ -807,6 +829,10 @@
                 if (dragIndicator) {
                     dragIndicator.style.display = 'none';
                 }
+                // Save settings when drag ends
+                if (settingsChanged) {
+                    saveSettings();
+                }
             }
         });
         
@@ -817,6 +843,10 @@
                 visualizerContainer.style.cursor = 'grab';
                 if (dragIndicator) {
                     dragIndicator.style.display = 'none';
+                }
+                // Save settings when drag ends
+                if (settingsChanged) {
+                    saveSettings();
                 }
             }
         });

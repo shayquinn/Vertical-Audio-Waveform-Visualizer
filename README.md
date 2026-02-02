@@ -2,7 +2,7 @@
 
 A beautiful, interactive, real-time audio visualization userscript that displays a customizable vertical frequency spectrum bar on the right side of any webpage playing audio or video.
 
-![Visualizer Preview](https://img.shields.io/badge/Type-Userscript-blue) ![Version](https://img.shields.io/badge/Version-1.3-green) ![Interactive](https://img.shields.io/badge/Interactive-Yes-brightgreen)
+![Visualizer Preview](https://img.shields.io/badge/Type-Userscript-blue) ![Version](https://img.shields.io/badge/Version-1.4-green) ![Interactive](https://img.shields.io/badge/Interactive-Yes-brightgreen)
 
 ## ✨ Features
 
@@ -10,7 +10,8 @@ A beautiful, interactive, real-time audio visualization userscript that displays
 - 🌈 **Rainbow Gradient Colors** - Beautiful color transitions from pink → purple → blue → cyan → green
 - 🎨 **Interactive Color Control** - Drag vertically to rotate through the full color spectrum in real-time
 - 📊 **Adjustable Bar Density** - Drag horizontally to increase/decrease the number of bars (10-80 bars)
-- 🔄 **Center-Mirrored Design** - Bars radiate outward from the center in both directions
+- � **Persistent Settings** - Your color and bar count preferences are saved between sessions
+- �🔄 **Center-Mirrored Design** - Bars radiate outward from the center in both directions
 - 🎭 **Dynamic Glow Effects** - Glow effects that change color along with the gradient
 - 📍 **Peak Indicators** - White markers show peak audio levels that decay smoothly
 - � **Quick Reset** - Double-click or use reset button to restore default settings
@@ -109,10 +110,10 @@ The visualizer is fully interactive! Hover over it and you'll see a "grab" curso
 
 **�💡 Tips:**
 - You can drag diagonally to change both color and density simultaneously
-- Your settings persist while the visualizer is active
+- Your color and bar count settings are automatically saved and restored between sessions
+- Settings persist across page reloads and browser restarts
 - Double-click anytime to reset to default colors and bar count
 - The reset button (↺) in the top-right corner provides a click alternative to double-click
-- Settings reset when you refresh the page or start new media
 
 ## 🎛️ Managing the Script
 
@@ -308,7 +309,12 @@ This userscript is provided as-is for personal use. Feel free to modify and shar
 
 ## 🔄 Version History
 
-### v1.3 (Current)
+### v1.4 (Current)
+- 💾 **Settings Persistence** - Bar count and hue rotation now persist between sessions
+- ⚡ **Performance Fix** - Optimized localStorage writes to prevent freezing during drag operations
+- 🔧 **Improved UX** - Settings are saved when you finish dragging, not during every movement
+
+### v1.3
 - ✨ **Interactive Color Control** - Drag vertically to rotate through color spectrum
 - 📊 **Adjustable Bar Density** - Drag horizontally to change bar count (10-80)
 - 🎨 **Dynamic Hue Rotation** - All colors and glows rotate together
