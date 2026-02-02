@@ -1,17 +1,20 @@
 # Vertical Audio Waveform Visualizer
 
-A beautiful, real-time audio visualization userscript that displays a vertical, gradient-colored frequency spectrum bar on the right side of any webpage playing audio or video.
+A beautiful, interactive, real-time audio visualization userscript that displays a customizable vertical frequency spectrum bar on the right side of any webpage playing audio or video.
 
-![Visualizer Preview](https://img.shields.io/badge/Type-Userscript-blue) ![Version](https://img.shields.io/badge/Version-1.2-green)
+![Visualizer Preview](https://img.shields.io/badge/Type-Userscript-blue) ![Version](https://img.shields.io/badge/Version-1.3-green) ![Interactive](https://img.shields.io/badge/Interactive-Yes-brightgreen)
 
 ## ✨ Features
 
 - 🎵 **Real-time Audio Visualization** - Displays live frequency bars that animate with your audio
 - 🌈 **Rainbow Gradient Colors** - Beautiful color transitions from pink → purple → blue → cyan → green
+- 🎨 **Interactive Color Control** - Drag vertically to rotate through the full color spectrum in real-time
+- 📊 **Adjustable Bar Density** - Drag horizontally to increase/decrease the number of bars (10-80 bars)
 - 🔄 **Center-Mirrored Design** - Bars radiate outward from the center in both directions
-- 🎭 **Glow Effects** - Dynamic glow effects on active bars for enhanced visual appeal
+- 🎭 **Dynamic Glow Effects** - Glow effects that change color along with the gradient
+- 📍 **Peak Indicators** - White markers show peak audio levels that decay smoothly
 - 🔇 **Auto-Detection** - Automatically detects and visualizes any audio/video on the page
-- 👻 **Non-Intrusive** - Pointer-events disabled so it won't interfere with page interactions
+- 🖱️ **Intuitive Controls** - Grab cursor shows the visualizer is interactive
 - 📱 **Responsive** - Adapts to window resizing and high DPI displays
 - ⚡ **Performance Optimized** - Pauses when tab is hidden to save resources
 
@@ -19,8 +22,12 @@ A beautiful, real-time audio visualization userscript that displays a vertical, 
 
 The visualizer creates a 120px wide vertical bar on the right edge of your browser window that:
 - Appears automatically when audio/video starts playing (and isn't muted)
-- Shows real-time frequency analysis with 40 mirrored bars
+- Shows real-time frequency analysis with a single center bar and mirrored frequency bars
 - Displays a smooth gradient effect that flows from the center outward
+- Responds to mouse interaction for customization:
+  - **Drag Up/Down**: Rotate colors through the full spectrum
+  - **Drag Left/Right**: Adjust number of bars (fewer/more)
+- Shows peak indicators that track maximum audio levels
 - Disappears when audio stops or is paused
 - Works on any website including YouTube, Netflix, Spotify Web Player, SoundCloud, etc.
 
@@ -68,11 +75,34 @@ The visualizer creates a 120px wide vertical bar on the right edge of your brows
 
 ## 🎮 Usage
 
+### Basic Usage
+
 1. Navigate to any webpage with audio or video content
 2. Play the media (make sure it's not muted)
 3. The visualizer automatically appears on the right side
 4. When you pause or stop the audio, the visualizer disappears
 5. Works across all tabs - each tab gets its own visualizer
+
+### Interactive Controls
+
+The visualizer is fully interactive! Hover over it and you'll see a "grab" cursor.
+
+**🎨 Change Colors (Vertical Drag):**
+- Click and drag **up** or **down** on the visualizer
+- Watch the colors rotate through the full spectrum
+- All gradient colors and glow effects change together
+- Create your perfect color scheme!
+
+**📊 Adjust Bar Density (Horizontal Drag):**
+- Click and drag **left** to decrease bars (larger, fewer bars: 10 minimum)
+- Click and drag **right** to increase bars (smaller, more bars: 80 maximum)
+- Find the perfect balance between detail and smoothness
+- Great for different types of music (fewer bars for bass-heavy, more for detailed treble)
+
+**💡 Tips:**
+- You can drag diagonally to change both color and density simultaneously
+- Your settings persist while the visualizer is active
+- Settings reset when you refresh the page or start new media
 
 ## 🎛️ Managing the Script
 
@@ -134,7 +164,7 @@ The visualizer creates a 120px wide vertical bar on the right edge of your brows
 
 ## ⚙️ Configuration
 
-You can customize the visualizer by editing these values in the `CONFIG` object (lines 15-23):
+You can customize the default visualizer settings by editing these values in the `CONFIG` object (lines 15-26):
 
 ```javascript
 const CONFIG = {
@@ -142,11 +172,16 @@ const CONFIG = {
     backgroundColor: 'rgba(0, 0, 0, 0.7)',  // Background color
     borderColor: 'rgba(255, 255, 255, 0.3)',  // Border color
     smoothing: 0.8,             // Audio smoothing (0-1, higher = smoother)
-    numBars: 40,                // Number of frequency bars
+    numBars: 40,                // Default number of frequency bars (adjustable via drag)
     barSpacing: 2,              // Space between bars
-    barColor: '#00ff88'         // Glow effect color
+    barColor: '#00ff88',        // Base glow effect color (rotates with drag)
+    animationSpeed: 0.15,       // Animation smoothing speed
+    peakHold: true,             // Show peak indicators
+    peakDecay: 0.97             // How fast peaks fall (0-1, higher = slower)
 };
 ```
+
+**Note:** While `numBars` sets the initial count, you can change it on-the-fly by dragging horizontally on the visualizer (range: 10-80 bars).
 
 ## � Safety & Privacy
 
@@ -225,6 +260,15 @@ No special browser permissions required beyond what userscript managers normally
 - Open browser console (F12) and look for `[Visualizer]` messages
 - Try refreshing the page
 
+**Dragging changes page scroll/selection instead:**
+- This has been fixed - the visualizer prevents default browser behaviors
+- If issues persist, try clicking and holding for a moment before dragging
+
+**Colors or bars won't change when dragging:**
+- Make sure you're dragging on the visualizer itself (right edge of screen)
+- Look for the "grab" cursor to confirm you're hovering over the interactive area
+- Try refreshing the page if the controls become unresponsive
+
 **Visualizer goes blank:**
 - This has been fixed in v1.2 - make sure you're using the latest version
 - Try switching tabs away and back
@@ -241,8 +285,12 @@ No special browser permissions required beyond what userscript managers normally
 
 - **Audio Analysis**: Uses Web Audio API's AnalyserNode with FFT size of 256
 - **Rendering**: HTML5 Canvas with requestAnimationFrame for smooth 60fps animation
+- **Color Manipulation**: Real-time HSL color rotation with hex conversion
+- **Peak Tracking**: Decay algorithm for smooth peak indicator animations
+- **Interaction**: Mouse event handlers with drag detection and prevention of default behaviors
+- **Dynamic Scaling**: Bar count adjustment with automatic frequency bin mapping
 - **Compatibility**: Works with all modern browsers supporting Web Audio API
-- **Performance**: Automatically pauses animation when tab is hidden
+- **Performance**: Automatically pauses animation when tab is hidden, throttled resize events
 
 ## 📄 License
 
@@ -250,7 +298,17 @@ This userscript is provided as-is for personal use. Feel free to modify and shar
 
 ## 🔄 Version History
 
-### v1.2 (Current)
+### v1.3 (Current)
+- ✨ **Interactive Color Control** - Drag vertically to rotate through color spectrum
+- 📊 **Adjustable Bar Density** - Drag horizontally to change bar count (10-80)
+- 🎨 **Dynamic Hue Rotation** - All colors and glows rotate together
+- 📍 **Peak Indicators** - White markers show and hold peak levels
+- 🖱️ **Enhanced Interaction** - Grab/grabbing cursor, prevents page interference
+- 🔧 **Multiple Audio Source Handling** - Better switching between different media
+- 🧹 **Memory Leak Prevention** - Proper cleanup of audio resources
+- ⚡ **Performance Enhancements** - Throttled resize events, visibility detection
+
+### v1.2
 - Added center-mirrored visualization design
 - Fixed tab switching blank screen issue
 - Improved canvas context handling
